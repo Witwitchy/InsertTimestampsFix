@@ -4,7 +4,7 @@
  * @authorId 92660365
  * @description Allows you to insert timestamp markdown with a convenient chat bar button
  * @source https://github.com/Witwitchy/InsertTimestampsFix/blob/main/Plugins/InsertTimestamps/InsertTimestamps.plugin.js
- * @version 1.0.14
+ * @version 1.0.15
  */
 
 /*
@@ -130,7 +130,7 @@ function PickerModal({ rootProps }) {
           colorScheme: PreloadedUserSettings?.getCurrentValue?.()?.appearance?.theme === 2 ? "light" : "dark"
         }
       }
-    ), /* @__PURE__ */ BdApi.React.createElement(Text, { variant: "heading-md/bold", className: cl("format-title") }, "Timestamp Format"), /* @__PURE__ */ BdApi.React.createElement(
+    ), /* @__PURE__ */ BdApi.React.createElement("h3",{ className: cl("format-title") }, "Timestamp Format"), /* @__PURE__ */ BdApi.React.createElement(
       "select",
       {
         value: format,
@@ -156,7 +156,7 @@ function PickerModal({ rootProps }) {
           getDynamicLabel(m, time)
         );
       })
-    ), /* @__PURE__ */ BdApi.React.createElement(Text, { variant: "heading-md/bold", className: cl("preview-title") }, "Preview"), /* @__PURE__ */ BdApi.React.createElement(Text, { variant: "heading-sm/normal", className: cl("preview-text") }, rendered, " (", formatted, ")"))
+    ), /* @__PURE__ */ BdApi.React.createElement("h3",{ className: cl("preview-title") }, "Preview"), /* @__PURE__ */ BdApi.React.createElement("div",{ className: cl("preview-text") }, rendered, " (", formatted, ")"))
   );
 }
 function ChatBarComponent() {
