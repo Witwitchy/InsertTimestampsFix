@@ -4,7 +4,7 @@
  * @authorId 92660365
  * @description Allows you to insert timestamp markdown with a convenient chat bar button
  * @source https://github.com/Witwitchy/InsertTimestampsFix/blob/main/Plugins/InsertTimestamps/InsertTimestamps.plugin.js
- * @version 1.0.16
+ * @version 1.0.17
  */
 
 /*
@@ -21,14 +21,21 @@ var { useState, useMemo } = BdApi.React;
 var { Filters } = BdApi.Webpack;
 var { Button, Tooltip } = BdApi.Components;
 
-var CalendarIcon = BdApi.Webpack.getModule(Filters.byStrings("M7 1a1 1 0 0 1 1 1v.75c0"), { searchExports: true });
+var CalendarIconFound = BdApi.Webpack.getModule(Filters.byStrings("M7 1a1 1 0 0 1 1 1v.75c0"), { searchExports: true });
+var CalendarIcon = CalendarIconFound ?? function FallbackCalendarIcon() {
+  return BdApi.React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24" },
+    BdApi.React.createElement("path", {
+      fill: "currentColor",
+      d: "M7 1a1 1 0 0 1 1 1v.75h8V2a1 1 0 1 1 2 0v.75h.25A3.75 3.75 0 0 1 22 6.5v12a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 18.5v-12a3.75 3.75 0 0 1 3.75-3.75H6V2a1 1 0 0 1 1-1ZM4 10v8.5c0 .97.78 1.75 1.75 1.75h12.5c.97 0 1.75-.78 1.75-1.75V10H4Zm1.75-5.25C4.78 4.75 4 5.53 4 6.5V8h16V6.5c0-.97-.78-1.75-1.75-1.75h-12.5Z"
+    }));
+};
 var Parser = BdApi.Webpack.getByKeys("parseTopic");
 var PreloadedUserSettings = BdApi.Webpack.getModule((m) => m.ProtoClass?.typeName.endsWith("PreloadedUserSettings"), {
   searchExports: true
 });
-var ButtonWrapperClasses = BdApi.Webpack.getByKeys("buttonWrapper", "buttonContent");
-var ButtonClasses = BdApi.Webpack.getByKeys("emojiButton", "stickerButton");
-var IconClasses = BdApi.Webpack.getByKeys("iconContainer", "trinketsIcon");
+var ButtonWrapperClasses = BdApi.Webpack.getByKeys("buttonWrapper", "buttonContent") ?? {};
+var ButtonClasses = BdApi.Webpack.getByKeys("emojiButton", "stickerButton") ?? {};
+var IconClasses = BdApi.Webpack.getByKeys("iconContainer", "trinketsIcon") ?? {};
 
 var cl = (...names) => names.map((n) => `vbd-its-${n}`).join(" ");
 var Formats = ["", "t", "T", "d", "D", "f", "F", "R"];
@@ -272,8 +279,15 @@ function ChatBarComponent() {
       },
       h(
         "div",
-        { className: `${ButtonWrapperClasses.buttonWrapper} ${ButtonClasses.button} ${ButtonWrapperClasses.button}` },
-        h("div", { className: IconClasses.iconContainer }, h(CalendarIcon, null))
+        {
+          className: [
+            ButtonWrapperClasses.buttonWrapper,
+            ButtonClasses.button,
+            ButtonWrapperClasses.button,
+            ButtonWrapperClasses.buttonWrapper ? null : cl("button-wrapper")
+          ].filter(Boolean).join(" ")
+        },
+        h("div", { className: IconClasses.iconContainer ?? cl("icon-container") }, h(CalendarIcon, null))
       )
     )
   );
@@ -308,6 +322,26 @@ var styles_default = `
 }
 .vbd-its-text-area-button {
     padding: 0;
+}
+/* Yedek stiller: Discord'un kendi sinif adlari bulunamazsa kullanilir */
+.vbd-its-button-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 6px;
+    cursor: pointer;
+}
+.vbd-its-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--interactive-normal, #b5bac1);
+}
+.vbd-its-button-wrapper:hover .vbd-its-icon-container {
+    color: var(--interactive-hover, #dbdee1);
 }
 .vbd-its-preview-title,
 .vbd-its-format-title {
@@ -348,7 +382,7 @@ var styles_default = `
     flex-shrink: 0;
     color: var(--interactive-normal, #b5bac1);
     /* OK KONUMU: sola almak icin bu degeri arttir, saga almak icin azalt */
-    margin-right: 0px;
+    margin-right: 8px;
 }
 .vbd-its-open .vbd-its-select-arrow {
     transform: rotate(180deg);
@@ -361,7 +395,9 @@ var styles_default = `
     padding: 0;
     background: var(--background-secondary, var(--background-base-low, #2b2d31));
     border: 1px solid var(--background-tertiary, rgba(0, 0, 0, 0.35));
+    /* KOSE YUVARLAKLIGI: sol-ust sag-ust sag-alt sol-alt (saat yonunde) */
     border-radius: 4px 4px 12px 12px;
+    overflow: hidden auto;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
 }
 .vbd-its-select-list::-webkit-scrollbar {
@@ -379,6 +415,7 @@ var styles_default = `
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    /* SECENEK ARALIGI: ilk deger ust/alt bosluk, ikinci deger sol/sag bosluk */
     padding: 8px 16px;
     color: var(--interactive-normal, #b5bac1);
     font-size: 16px;
